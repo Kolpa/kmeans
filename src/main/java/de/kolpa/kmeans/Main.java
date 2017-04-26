@@ -7,6 +7,8 @@ import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +25,9 @@ public class Main {
     private static List<Cluster> clusters;
 
     private static XYChart chart;
-    private static SwingWrapper<XYChart> sw;
 
-    private static void init() throws IOException {
-        points = PointFactory.getPointsFromFile("C:\\Users\\Kolpa\\Downloads\\data.txt");
+    private static void init(String pointfile) throws IOException {
+        points = PointFactory.getPointsFromFile(pointfile);
 
         clusters = new ArrayList<>();
 
@@ -39,17 +40,6 @@ public class Main {
 
             clusters.add(cluster);
         }
-
-        List<Double> xcenters = new ArrayList<>();
-        List<Double> ycenters = new ArrayList<>();
-
-
-        for (Cluster cluster : clusters) {
-            xcenters.add(cluster.getCenter().getX());
-            ycenters.add(cluster.getCenter().getY());
-        }
-
-        chart.addSeries("Centers", xcenters, ycenters).setMarker(SeriesMarkers.TRIANGLE_UP);
     }
 
     private static List<Point> getClusterCenters() {
@@ -132,49 +122,66 @@ public class Main {
             System.out.println("Distance: " + dist);
 
             done = dist == 0;
+        }
+    }
 
-            List<Double> xcenters = new ArrayList<>();
-            List<Double> ycenters = new ArrayList<>();
+    private static void doRun(String pointfile, JPanel panel) {
+        try {
+            init(pointfile);
+            calculate();
 
+            List<String> todel = new ArrayList<>();
 
-            for (Cluster cluster : clusters) {
-                xcenters.add(cluster.getCenter().getX());
-                ycenters.add(cluster.getCenter().getY());
+            todel.addAll(chart.getSeriesMap().keySet());
 
-                if (cluster.getPoints().size() > 0)
-                    cluster.updateChart(chart);
-            }
+            for (String del : todel)
+                chart.removeSeries(del);
 
-            chart.updateXYSeries("Centers", xcenters, ycenters, null);
-            sw.repaintChart();
+            for (Cluster cluster : clusters)
+                cluster.addToChart(chart);
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            panel.repaint();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
-        try {
-            chart = new XYChartBuilder().build();
+        chart = new XYChartBuilder().build();
 
-            chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
-            chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideSW);
+        chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideSW);
 
-            sw = new SwingWrapper<>(chart);
-            sw.displayChart();
+        SwingUtilities.invokeLater(() -> {
 
-            init();
+            // Create and set up the window.
+            JFrame frame = new JFrame("K Means Algorithm");
 
-            calculate();
+            frame.setLayout(new BorderLayout());
+            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-            sw.repaintChart();
+            // chart
+            JPanel chartPanel = new XChartPanel<>(chart);
+            frame.add(chartPanel, BorderLayout.CENTER);
 
+            // load frame
+            JPanel loadPanel = new JPanel(new BorderLayout());
+            frame.add(loadPanel, BorderLayout.SOUTH);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            JTextField loadPath = new JTextField("C:\\Users\\Kolya\\Downloads\\data.txt");
+            loadPanel.add(loadPath, BorderLayout.CENTER);
+
+            // label
+            JButton load = new JButton("Load File");
+            loadPanel.add(load, BorderLayout.EAST);
+
+            load.addActionListener((l) -> {
+                doRun(loadPath.getText(), chartPanel);
+            });
+
+            // Display the window.
+            frame.pack();
+            frame.setVisible(true);
+        });
     }
 }

@@ -63,6 +63,9 @@ public class Cluster {
     }
 
     public void addToChart(XYChart chart) {
+        if (points.size() < 1)
+            return;
+
         List<Double> x = new ArrayList<>();
         List<Double> y = new ArrayList<>();
 
@@ -72,20 +75,5 @@ public class Cluster {
         }
 
         chart.addSeries(name, x, y).setMarker(marker);
-    }
-
-    public void updateChart(XYChart chart) {
-        if (!chart.getSeriesMap().containsKey(name))
-            addToChart(chart);
-
-        List<Double> x = new ArrayList<>();
-        List<Double> y = new ArrayList<>();
-
-        for (Point point : points) {
-            x.add(point.getX());
-            y.add(point.getY());
-        }
-
-        chart.updateXYSeries(name, x, y, null);
     }
 }
