@@ -56,16 +56,16 @@ public class Main {
         double max = Double.MAX_VALUE;
         double min;
 
-        double distace = 0.0;
+        double distance = 0.0;
         Cluster closeCluster = clusters.get(0);
 
         for (Point point : points) {
             min = max;
 
             for (Cluster cluster : clusters) {
-                distace = point.distance(cluster.getCenter());
-                if (distace < min) {
-                    min = distace;
+                distance = point.distance(cluster.getCenter());
+                if (distance < min) {
+                    min = distance;
                     closeCluster = cluster;
                 }
             }
