@@ -17,7 +17,7 @@ import java.util.List;
  * Created by Kolpa on 18.04.2017.
  */
 public class Main {
-    private static final int MAX_CLUSTERS = 4;
+    private static int MAX_CLUSTERS = 4;
     private static final int MAX_POS = 3;
     private static final int MIN_POS = -3;
 
@@ -168,14 +168,23 @@ public class Main {
             JPanel loadPanel = new JPanel(new BorderLayout());
             frame.add(loadPanel, BorderLayout.SOUTH);
 
+            JPanel filePanel = new JPanel(new BorderLayout());
+            loadPanel.add(filePanel, BorderLayout.NORTH);
+
             JTextField loadPath = new JTextField("C:\\Users\\Kolya\\Downloads\\data.txt");
-            loadPanel.add(loadPath, BorderLayout.CENTER);
+            filePanel.add(loadPath, BorderLayout.CENTER);
 
             // label
             JButton load = new JButton("Load File");
-            loadPanel.add(load, BorderLayout.EAST);
+            filePanel.add(load, BorderLayout.EAST);
+
+            JSlider slider = new JSlider(1, 10, 4);
+            slider.setMajorTickSpacing(1);
+            slider.setPaintLabels(true);
+            loadPanel.add(slider, BorderLayout.CENTER);
 
             load.addActionListener((l) -> {
+                MAX_CLUSTERS = slider.getValue();
                 doRun(loadPath.getText(), chartPanel);
             });
 
