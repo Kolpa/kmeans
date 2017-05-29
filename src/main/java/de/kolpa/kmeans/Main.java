@@ -9,6 +9,8 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -172,16 +174,39 @@ public class Main {
             loadPanel.add(filePanel, BorderLayout.NORTH);
 
             JTextField loadPath = new JTextField("C:\\Users\\Kolya\\Downloads\\data.txt");
+
+            loadPath.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    JFileChooser filechooser = new JFileChooser();
+                    if (filechooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+                        loadPath.setText(filechooser.getSelectedFile().getAbsolutePath());
+                    }
+                }
+            });
+
             filePanel.add(loadPath, BorderLayout.CENTER);
 
-            // label
+            // loadFile
             JButton load = new JButton("Load File");
             filePanel.add(load, BorderLayout.EAST);
 
+            // cluster size
             JSlider slider = new JSlider(1, 10, 4);
             slider.setMajorTickSpacing(1);
             slider.setPaintLabels(true);
             loadPanel.add(slider, BorderLayout.CENTER);
+
+            //save image
+            JButton saveImage = new JButton("Save Image");
+            saveImage.addActionListener((l) -> {
+                try {
+                    BitmapEncoder.saveBitmap(chart, "./Chart.png", BitmapEncoder.BitmapFormat.PNG);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            loadPanel.add(saveImage, BorderLayout.EAST);
 
             load.addActionListener((l) -> {
                 MAX_CLUSTERS = slider.getValue();
